@@ -21,7 +21,7 @@ implementation
 procedure TAccessToFiles.InitPaths();
 {$IfDeF RELEASE}
 CONST PathToDataBase = 'data\pdd_db.mdb';
-      PathToTickets = 'data\tickets';
+      PathToTickets = 'data\tickets\';
 {$EndIf}
 {$IfDeF DEBUG}
 CONST PathToDataBase = '..\..\..\data\pdd_db.mdb';
