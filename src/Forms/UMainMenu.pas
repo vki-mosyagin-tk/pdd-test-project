@@ -1,26 +1,27 @@
-unit Unit1;
+Ôªøunit UMainMenu;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls;
+  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient;
 
 type
-  TForm1 = class(TForm)
+  TFMainMenu = class(TForm)
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     ADOQuery1: TADOQuery;
     Panel1: TPanel;
-    Label1: TLabel;
     Button5: TButton;
     GroupBox1: TGroupBox;
     Button6: TButton;
     Label2: TLabel;
     ComboBox1: TComboBox;
     Button7: TButton;
+    Memo1: TMemo;
+    ADOConnection1: TADOConnection;
     procedure Button1Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -36,7 +37,7 @@ type
   end;
 
 var
-  Form1: TForm1;
+  FMainMenu: TFMainMenu;
   number_bil:integer;
   rejim,kol_bilets:Integer;
   flag_ex:boolean;
@@ -44,17 +45,17 @@ var
 
 implementation
 
-uses Unit2;
+uses UTrainer;
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TFMainMenu.Button1Click(Sender: TObject);
 begin
-  if(application.MessageBox(PChar('’ÓÚËÚÂ ‚˚ÈÚË ËÁ ÔÓ„‡ÏÏ˚ ?'),'»ÌÙÓÏ‡ˆËˇ .',mb_YesNo or mb_iconquestion)=mrYes)then
-    Form1.Close;
+  if(application.MessageBox(PChar('–•–æ—Ç–∏—Ç–µ –≤—ã–π—Ç–∏ –∏–∑ –ø—Ä–æ–≥—Ä–∞–º–º—ã ?'),'–ò–Ω—Ñ–æ—Ä–º–∞—Ü–∏—è .',mb_YesNo or mb_iconquestion)=mrYes)then
+    FMainMenu.Close;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TFMainMenu.Button2Click(Sender: TObject);
 begin
   ComboBox1.Clear;
   with ADOQuery1 do
@@ -73,7 +74,7 @@ begin
   GroupBox1.Visible:=True;
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TFMainMenu.Button3Click(Sender: TObject);
 begin
   with ADOQuery1 do
   begin
@@ -86,77 +87,74 @@ begin
       kol_bilets:=Fields[0].AsInteger;
       rejim:=2;
       flag_ex:=True;
-      Form2 := TForm2.Create(Self);
-      Form2.Show();
-      Form1.Hide;
+      FTrainer := TFTrainer.Create(Self);
+      FTrainer.Show();
+      FMainMenu.Hide;
     end;
   end;
 end;
 
-procedure TForm1.Button4Click(Sender: TObject);
-var
-  mem:Tmemo;
+procedure TFMainMenu.Button4Click(Sender: TObject);
 begin
-  Panel1.Visible:=True;
-  if(FileExists('data_app/zaglavie.txt'))then
-  begin
-    mem:=Tmemo.Create(self);
-    mem.Parent:=Form1;
-    mem.Visible:=False;
-    mem.Lines.LoadFromFile('data_app/zaglavie.txt');
-    Label1.Caption:=mem.Lines.Text;
-    mem.Free;
-  end;
+  Panel1.Visible := True;
 end;
 
-procedure TForm1.Button5Click(Sender: TObject);
+procedure TFMainMenu.Button5Click(Sender: TObject);
 begin
   Panel1.Visible:=False;
 end;
 
-procedure TForm1.Button6Click(Sender: TObject);
+procedure TFMainMenu.Button6Click(Sender: TObject);
 begin
   GroupBox1.Visible:=False;
 end;
 
-procedure TForm1.Button7Click(Sender: TObject);
+procedure TFMainMenu.Button7Click(Sender: TObject);
 begin
   if(ComboBox1.ItemIndex <> -1)then
   begin
     number_bil:=StrToInt(ComboBox1.Items[ComboBox1.ItemIndex]);
-    Form1.Hide;
-    Form2:=TForm2.Create(Self);
+    FMainMenu.Hide;
+    FTrainer:=TFTrainer.Create(Self);
     rejim:=1;
     flag_ex:=False;
-    Form2.Show();
+    FTrainer.Show();
   end else
-    ShowMessage('¬˚ ÌÂ ‚˚·‡ÎË ·ËÎÂÚ !');
+    ShowMessage('–í—ã –Ω–µ –≤—ã–±—Ä–∞–ª–∏ –±–∏–ª–µ—Ç!');
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
-var
-  str_connect:String;
+procedure TFMainMenu.FormCreate(Sender: TObject);
 begin
-  str_connect:='data_app/pdd_db.mdb';
-  ADOQuery1.ConnectionString :=
+  var PASSWORD_TO_DB := EmptyStr;
+
+  try
+    ADOConnection1.ConnectionString :=
         'Provider=Microsoft.Jet.OLEDB.4.0;'+
         'User ID=Admin;'+
-        'Data Source='+str_connect+';'+
+        'Data Source='+Config.PathDataBase+';'+
         'Mode=Share Deny None;'+
         'Extended Properties="";'+
         'Jet OLEDB:System database="";'+
         'Jet OLEDB:Registry Path="";'+
-        'Jet OLEDB:Database Password="1";'+
+        'Jet OLEDB:Database Password="'+PASSWORD_TO_DB+'";'+
         'Jet OLEDB:Engine Type=5;'+
         'Jet OLEDB:Database Locking Mode=1;'+
         'Jet OLEDB:Global Partial Bulk Ops=2;'+
         'Jet OLEDB:Global Bulk Transactions=1;'+
-        'Jet OLEDB:New Database Password="";'+
+        'Jet OLEDB:New Database Password="'+PASSWORD_TO_DB+'";'+
         'Jet OLEDB:Create System Database=False;'+
         'Jet OLEDB:Encrypt Database=False;'+
         'Jet OLEDB:Don'+'''t Copy Locale on Compact=False;'+
         'Jet OLEDB:Compact Without Replica Repair=False;'+
         'Jet OLEDB:SFP=False';
+
+    ADOConnection1.Connected := true;
+  except on E : Exception do
+    begin
+      ShowMessage(Format('–û—à–∏–±–∫–∞ –ø—Ä–∏ –ø–æ–¥–∫–ª—é—á–µ–Ω–∏–∏ –∫ –ë–î. %s', [E.Message]));
+      Application.Terminate;
+    end;
+  end;
 end;
 
 end.

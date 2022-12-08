@@ -1,13 +1,14 @@
-unit Unit2;
+п»їunit UTrainer;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG, UConfigClient, System.ImageList,
+  Vcl.ImgList;
 
 type
-  TForm2 = class(TForm)
+  TFTrainer = class(TForm)
     Button1: TButton;
     Image1: TImage;
     StatusBar1: TStatusBar;
@@ -29,6 +30,7 @@ type
     Panel1: TPanel;
     Memo6: TMemo;
     Button6: TButton;
+    ImageList1: TImageList;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
     procedure load_tets();
@@ -47,23 +49,20 @@ type
   end;
 
 var
-  Form2: TForm2;
+  FTrainer: TFTrainer;
   index_vopr:Integer;
   res:array[1..20]of string;
   res_:array[1..20]of Integer;
   im:array[1..20]of TImage;
   sec,min:Integer;
 
-
-
 implementation
 
-uses Unit1, Unit3;
+uses UMainMenu, UResults;
 
 {$R *.dfm}
 
-
-procedure Tform2.load_tets();
+procedure TFTrainer.load_tets();
 var
   i:Integer;
   tmp_str,tmp_otv,tmp_otv2,tmp_otv3,tmp_otv4:String;
@@ -73,7 +72,7 @@ begin
   kol_otv:=0;
   if(rejim = 2)and(zanovo = false)then
     number_bil:=Random(kol_bilets)+1;
-  pyt1:='data_app/Bilets/'+IntToStr(number_bil)+'_bilet/';
+  pyt1 := Config.PathTickets + IntToStr(number_bil)+'_bilet/';
   if(DirectoryExists(pyt1))then
   begin
     memo1.Lines.LoadFromFile(pyt1+IntToStr(index_vopr)+'_text.txt');
@@ -107,14 +106,14 @@ begin
       4:begin RadioButton3.Visible:=true; RadioButton4.Visible:=true; memo4.Visible:=true; memo5.Visible:=True;end;
     end;
     if(rejim = 2)then
-      StatusBar1.Panels[1].Text:='     Вопрос '+IntToStr(index_vopr)+' из 20'
+      StatusBar1.Panels[1].Text:='     Р’РѕРїСЂРѕСЃ '+IntToStr(index_vopr)+' РёР· 20'
     else
-      StatusBar1.Panels[1].Text:='Билет№'+IntToStr(number_bil)+'        Вопрос '+IntToStr(index_vopr)+' из 20';
+      StatusBar1.Panels[1].Text:='Р‘РёР»РµС‚в„–'+IntToStr(number_bil)+'        Р’РѕРїСЂРѕСЃ '+IntToStr(index_vopr)+' РёР· 20';
   end;
 end;
 
 
-procedure TForm2.Timer1Timer(Sender: TObject);
+procedure TFTrainer.Timer1Timer(Sender: TObject);
 var
   sec_,min_:String;
 begin
@@ -134,7 +133,7 @@ begin
   if(min = 20)and(rejim = 2)then
   begin
     Timer1.Enabled:=false;
-    ShowMessage('Время вышло! Вы не сдали экзамен!');
+    ShowMessage('Р’СЂРµРјСЏ РІС‹С€Р»Рѕ! Р’С‹ РЅРµ СЃРґР°Р»Рё СЌРєР·Р°РјРµРЅ!');
     Button1.Enabled:=False;
     Button5.Visible:=True;
     flag_ex:=true;
@@ -144,19 +143,19 @@ begin
 end;
 
 
-procedure TForm2.valid_test();
+procedure TFTrainer.valid_test();
 var
   true_otv:String;
 begin
     if(RadioButton1.Checked)then
-      res[index_vopr]:='№1';
+      res[index_vopr]:='в„–1';
     if(RadioButton2.Checked)then
-      res[index_vopr]:='№2';
+      res[index_vopr]:='в„–2';
     if(RadioButton3.Checked)then
-      res[index_vopr]:='№3';
+      res[index_vopr]:='в„–3';
     if(RadioButton4.Checked)then
-      res[index_vopr]:='№4';
-  with Form1.ADOQuery1 do
+      res[index_vopr]:='в„–4';
+  with FMainMenu.ADOQuery1 do
   begin
     Close;
     SQL.Clear;
@@ -165,30 +164,33 @@ begin
     Open;
     true_otv:=Fields[index_vopr].AsString;
   end;
+
+  im[index_vopr].Picture.Bitmap := nil;
+
   if(true_otv = res[index_vopr])then
   begin
-    im[index_vopr].Picture.LoadFromFile('data_app/true.bmp');
+    ImageList1.GetBitmap(0, im[index_vopr].Picture.Bitmap);
     res_[index_vopr]:=1;
   end else
   begin
-    im[index_vopr].Picture.LoadFromFile('data_app/false.bmp');
+    ImageList1.GetBitmap(1, im[index_vopr].Picture.Bitmap);
     res_[index_vopr]:=0;
   end;
 end;
 
 
 
-procedure TForm2.Button1Click(Sender: TObject);
+procedure TFTrainer.Button1Click(Sender: TObject);
 begin
-  if(application.MessageBox(PChar('Желаете выйти в главное меню ?'),'Внимание!.',mb_YesNo or mb_iconquestion)=mrYes)then
+  if(application.MessageBox(PChar('Р–РµР»Р°РµС‚Рµ РІС‹Р№С‚Рё РІ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ ?'),'Р’РЅРёРјР°РЅРёРµ!.',mb_YesNo or mb_iconquestion)=mrYes)then
   begin
-    Form2.Close;
-    Form1.Show;
-    Form1.GroupBox1.Visible:=False;
+    FTrainer.Close;
+    FMainMenu.Show;
+    FMainMenu.GroupBox1.Visible:=False;
   end;
 end;
 
-procedure TForm2.Button2Click(Sender: TObject);
+procedure TFTrainer.Button2Click(Sender: TObject);
 begin
     if((index_vopr-1) > 0)then
     begin
@@ -197,10 +199,10 @@ begin
       Button5.Visible:=False;
       button3.Enabled:=True;
     end else
-      ShowMessage('Вы находитесь на первом вопросе !');
+      ShowMessage('Р’С‹ РЅР°С…РѕРґРёС‚РµСЃСЊ РЅР° РїРµСЂРІРѕРј РІРѕРїСЂРѕСЃРµ !');
 end;
 
-procedure TForm2.Button3Click(Sender: TObject);
+procedure TFTrainer.Button3Click(Sender: TObject);
 begin
   if((RadioButton1.Visible)and(RadioButton1.Checked))or((RadioButton2.Visible)and(RadioButton2.Checked))or((RadioButton3.Visible)and(RadioButton3.Checked))or((RadioButton4.Visible)and(RadioButton4.Checked))then
   begin
@@ -210,46 +212,46 @@ begin
      inc(index_vopr);
      load_tets();
    end else begin valid_test(); Button5.Visible:=True; button3.Enabled:=False; end;
-  end else ShowMessage('Выбирете вариант ответа !');
+  end else ShowMessage('Р’С‹Р±РёСЂРµС‚Рµ РІР°СЂРёР°РЅС‚ РѕС‚РІРµС‚Р° !');
 end;
 
-procedure TForm2.Button4Click(Sender: TObject);
+procedure TFTrainer.Button4Click(Sender: TObject);
 begin
   Panel1.Visible:=True;
 end;
 
-procedure TForm2.Button5Click(Sender: TObject);
+procedure TFTrainer.Button5Click(Sender: TObject);
 begin
-  Form3 := TForm3.Create(nil);
-  Form3.Show();
-  Form2.Close;
+  FResults := TFResults.Create(nil);
+  FResults.Show();
+  FTrainer.Close;
 end;
 
-procedure TForm2.Button6Click(Sender: TObject);
+procedure TFTrainer.Button6Click(Sender: TObject);
 begin
   Panel1.Visible:=False;
 end;
 
-procedure TForm2.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFTrainer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   action:=caFree;
-  Form2:=nil;
+  FTrainer:=nil;
 end;
 
-procedure TForm2.FormShow(Sender: TObject);
+procedure TFTrainer.FormShow(Sender: TObject);
 var
   i:Integer;
 begin
   for i:=1 to 20 do
   begin
-    im[i]:=Timage.Create(Form2);
-    im[i].Parent:=Form2;
+    im[i]:=Timage.Create(FTrainer);
+    im[i].Parent:=FTrainer;
     im[i].Visible:=True;
     im[i].Height:=23;
     im[i].Width:=23;
     im[i].Top:=26;
     im[i].Left:=i*38;
-    im[i].Picture.LoadFromFile('data_app/def.bmp');
+    ImageList1.GetBitmap(2, im[i].Picture.Bitmap);
     im[i].Center:=True;
     im[i].Stretch:=True;
     im[i].Refresh;
@@ -260,14 +262,14 @@ begin
   begin
     load_tets();
     StatusBar1.Panels[0].Text:='';
-    StatusBar1.Panels[2].text:='Обучение.';
+    StatusBar1.Panels[2].text:='РћР±СѓС‡РµРЅРёРµ.';
   end;
   if(rejim = 2)then
   begin
     load_tets();
     Button4.Enabled:=False;
     Button2.Enabled:=False;
-    StatusBar1.Panels[2].text:='Экзамен.';
+    StatusBar1.Panels[2].text:='Р­РєР·Р°РјРµРЅ.';
     Timer1.Enabled:=True;
   end;
   if(rejim = 3)then
