@@ -121,6 +121,10 @@
             <Form>FTrainer</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="DataModule.pas">
+            <Form>DataModule1</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -179,7 +183,7 @@
                 <Platform value="Win64">False</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="Debug\Win32\PDD_Trainer.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\PDD_Trainer.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>PDD_Trainer.exe</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -956,6 +960,7 @@
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
             </Deployment>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

@@ -14,7 +14,6 @@ object FMainMenu: TFMainMenu
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
@@ -205,16 +204,5 @@ object FMainMenu: TFMainMenu
       TabOrder = 2
       OnClick = Button7Click
     end
-  end
-  object ADOQuery1: TADOQuery
-    Connection = ADOConnection1
-    Parameters = <>
-    Left = 16
-    Top = 8
-  end
-  object ADOConnection1: TADOConnection
-    Provider = 'Microsoft.Jet.OLEDB.4.0'
-    Left = 88
-    Top = 8
   end
 end

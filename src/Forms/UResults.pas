@@ -52,14 +52,14 @@ end;
 procedure TFResults.Button2Click(Sender: TObject);
 begin
   if(flag_ex)then
-    rejim:=2;
+    rejim:=Ord(Exam);
 
-  if(rejim = 2)then
+  if(rejim = Ord(Exam))then
   begin
     if(application.MessageBox(PChar('Хотите пройти заново экзамен ?'),'Внимание!.',mb_YesNo or mb_iconquestion)=mrYes)then
     begin
       FTrainer := TFTrainer.Create(nil);
-      rejim:=2;
+      rejim:=Ord(Exam);
       FTrainer.Show();
       FResults.Close;
       zanovo:=true;
@@ -69,7 +69,7 @@ begin
     if(application.MessageBox(PChar('Хотите пройти заново билет№'+IntToStr(number_bil)+' ?'),'Информация .',mb_YesNo or mb_iconquestion)=mrYes)then
     begin
       FTrainer := TFTrainer.Create(nil);
-      rejim:=1;
+      rejim:=Ord(Education);
       FTrainer.Show();
       FResults.Close;
     end;
@@ -80,6 +80,11 @@ procedure TFResults.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   action:= cafree;
   FResults:=nil;
+  if FTrainer= nil then                  //Есди не запущено обучение или экзамен,то возвращяет в главное меню
+  begin
+  FMainMenu.Show;
+  FMainMenu.GroupBox1.Visible:=False;
+  end;
 end;
 
 procedure TFResults.FormShow(Sender: TObject);
@@ -112,7 +117,7 @@ begin
     im_valid[i].Stretch:=True;
     im_valid[i].Refresh;
   end;
-  if(rejim = 2)or(flag_ex)then
+  if(rejim = Ord(Exam))or(flag_ex)then
   begin
     if(kol_error > 2)then
     begin
@@ -133,12 +138,11 @@ begin
   begin
     FResults.Close;
     FTrainer := TFTrainer.Create(nil);
-    rejim:=3;
+    rejim:=Ord(Education);
     FTrainer.Show();
     index_vopr:=Listbox1.ItemIndex+1;
     FTrainer.load_tets();
     FTrainer.Timer1.Enabled:=false;
   end;
 end;
-
 end.

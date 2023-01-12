@@ -5,9 +5,10 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG, UConfigClient, System.ImageList,
-  Vcl.ImgList;
+  Vcl.ImgList,System.StrUtils;
 
 type
+  TMode = (Education=1,Exam=2,Result=3);
   TFTrainer = class(TForm)
     Button1: TButton;
     Image1: TImage;
@@ -36,6 +37,9 @@ type
     procedure load_tets();
     procedure Timer1Timer(Sender: TObject);
     procedure valid_test();
+    procedure RemoveAnswers();
+    procedure EnableButtons();
+    procedure UneditableAnswers();
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -54,11 +58,11 @@ var
   res:array[1..20]of string;
   res_:array[1..20]of Integer;
   im:array[1..20]of TImage;
-  sec,min:Integer;
+  sec,min,final_sec:Integer;
 
 implementation
 
-uses UMainMenu, UResults;
+uses UMainMenu, UResults,DataModule;
 
 {$R *.dfm}
 
@@ -70,7 +74,7 @@ var
   pyt1:String;
 begin
   kol_otv:=0;
-  if(rejim = 2)and(zanovo = false)then
+  if(rejim = Ord(Exam))and(zanovo = false)then
     number_bil:=Random(kol_bilets)+1;
   pyt1 := Config.PathTickets + IntToStr(number_bil)+'_bilet/';
   if(DirectoryExists(pyt1))then
@@ -105,19 +109,19 @@ begin
       3:begin RadioButton4.Visible:=False; memo5.Visible:=False; memo4.Visible:=true;RadioButton3.Visible:=true;  end;
       4:begin RadioButton3.Visible:=true; RadioButton4.Visible:=true; memo4.Visible:=true; memo5.Visible:=True;end;
     end;
-    if(rejim = 2)then
+    if(rejim = Ord(Exam))then
       StatusBar1.Panels[1].Text:='     Вопрос '+IntToStr(index_vopr)+' из 20'
     else
       StatusBar1.Panels[1].Text:='Билет№'+IntToStr(number_bil)+'        Вопрос '+IntToStr(index_vopr)+' из 20';
   end;
 end;
 
-
 procedure TFTrainer.Timer1Timer(Sender: TObject);
 var
   sec_,min_:String;
 begin
       sec:=sec+1;
+      final_sec:=final_sec+1;
       if (sec=60) then
         begin
           min:=min+1;
@@ -130,7 +134,7 @@ begin
       if (min<10) then
         min_:='0'+min_;
       StatusBar1.Panels[0].Text:='    '+min_+':'+sec_;
-  if(min = 20)and(rejim = 2)then
+  if(min = 20)and(rejim = Ord(Exam))then
   begin
     Timer1.Enabled:=false;
     ShowMessage('Время вышло! Вы не сдали экзамен!');
@@ -155,15 +159,7 @@ begin
       res[index_vopr]:='№3';
     if(RadioButton4.Checked)then
       res[index_vopr]:='№4';
-  with FMainMenu.ADOQuery1 do
-  begin
-    Close;
-    SQL.Clear;
-    SQL.Text:='SELECT * FROM bilets WHERE id=:i';
-    Parameters.ParamByName('i').Value:=number_bil;
-    Open;
-    true_otv:=Fields[index_vopr].AsString;
-  end;
+   true_otv:=DataModule1.LoadAnswer();
 
   im[index_vopr].Picture.Bitmap := nil;
 
@@ -178,6 +174,33 @@ begin
   end;
 end;
 
+procedure TFTrainer.RemoveAnswers();   // Функция, обнуляющая выбранный ответ
+begin
+  RadioButton1.Checked:=False;
+  RadioButton2.Checked:=False;
+  RadioButton3.Checked:=False;
+  RadioButton4.Checked:=False;
+end;
+
+procedure TFTrainer.EnableButtons(); //Функция, включающая RadioButton 
+begin
+  RadioButton1.Enabled:=True;
+  RadioButton2.Enabled:=True;
+  RadioButton3.Enabled:=True;
+  RadioButton4.Enabled:=True;
+end;
+
+procedure TFTrainer.UneditableAnswers(); //Функия, запрещающая редактирование выбранного ответа
+var value:integer;
+begin
+  value:= StrToInt(Copy(res[index_vopr],2,1));
+  case value of
+  1:begin RadioButton1.Checked:=True; RadioButton2.Enabled:=False; RadioButton3.Enabled:=False; RadioButton4.Enabled:=False;  end;
+  2:begin RadioButton1.Enabled:=False; RadioButton2.Checked:=True; RadioButton3.Enabled:=False; RadioButton4.Enabled:=False; end;
+  3:begin RadioButton1.Enabled:=False; RadioButton2.Enabled:=False; RadioButton3.Checked:=True; RadioButton4.Enabled:=False; end;
+  4:begin RadioButton1.Enabled:=False; RadioButton2.Enabled:=False; RadioButton3.Enabled:=False; RadioButton4.Checked:=True; end;
+  end;
+end;
 
 
 procedure TFTrainer.Button1Click(Sender: TObject);
@@ -185,10 +208,9 @@ begin
   if(application.MessageBox(PChar('Желаете выйти в главное меню ?'),'Внимание!.',mb_YesNo or mb_iconquestion)=mrYes)then
   begin
     FTrainer.Close;
-    FMainMenu.Show;
-    FMainMenu.GroupBox1.Visible:=False;
   end;
 end;
+
 
 procedure TFTrainer.Button2Click(Sender: TObject);
 begin
@@ -198,6 +220,7 @@ begin
       load_tets();
       Button5.Visible:=False;
       button3.Enabled:=True;
+      UneditableAnswers();
     end else
       ShowMessage('Вы находитесь на первом вопросе !');
 end;
@@ -210,7 +233,15 @@ begin
    begin
      valid_test();
      inc(index_vopr);
+     if (res[index_vopr]<>'') 
+     then UneditableAnswers() 
+     else
+     begin
+      EnableButtons();
+      RemoveAnswers();
+     end;
      load_tets();
+     
    end else begin valid_test(); Button5.Visible:=True; button3.Enabled:=False; end;
   end else ShowMessage('Выбирете вариант ответа !');
 end;
@@ -234,8 +265,13 @@ end;
 
 procedure TFTrainer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  action:=caFree;
+  Action:=caFree;
   FTrainer:=nil;
+  if(FResults=nil) or (FResults.Showing=False) then  //Если,форма с результатами закрыта, то выходим в меню
+  begin
+  FMainMenu.Show;
+  FMainMenu.GroupBox1.Visible:=False;
+  end;
 end;
 
 procedure TFTrainer.FormShow(Sender: TObject);
@@ -255,21 +291,23 @@ begin
     im[i].Center:=True;
     im[i].Stretch:=True;
     im[i].Refresh;
+    res[i]:='';
   end;
-
   index_vopr:=1;
-  if(rejim = 1)then
+  if(rejim = Ord(Education))then
   begin
     load_tets();
     StatusBar1.Panels[0].Text:='';
     StatusBar1.Panels[2].text:='Обучение.';
   end;
-  if(rejim = 2)then
+  if(rejim = Ord(Exam))then
   begin
     load_tets();
     Button4.Enabled:=False;
     Button2.Enabled:=False;
     StatusBar1.Panels[2].text:='Экзамен.';
+    sec:=0;
+    min:=0;
     Timer1.Enabled:=True;
   end;
   if(rejim = 3)then
