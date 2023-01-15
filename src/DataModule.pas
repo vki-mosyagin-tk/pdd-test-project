@@ -1,4 +1,4 @@
-unit DataModule;
+п»їunit DataModule;
 
 interface
 
@@ -11,6 +11,7 @@ type
   ADOQuery1: TADOQuery;
   ADOConnection1: TADOConnection;
   procedure BilQuery();
+  procedure LoadQuestion();
   procedure ExamQuery();
   function LoadAnswer():string;
     procedure DataModuleCreate(Sender: TObject);
@@ -34,7 +35,7 @@ implementation
 
 uses UMainMenu;
 
-procedure TDataModule1.BilQuery();  //Процедура,выводящая билеты в ComboBox
+procedure TDataModule1.BilQuery();  //РџСЂРѕС†РµРґСѓСЂР°,РІС‹РІРѕРґСЏС‰Р°СЏ Р±РёР»РµС‚С‹ РІ ComboBox
 begin
   with ADOQuery1 do
   begin
@@ -51,7 +52,28 @@ begin
   end;
 end;
 
-procedure TDataModule1.DataModuleCreate(Sender: TObject);  //Подключение к БД
+procedure TDataModule1.LoadQuestion();
+begin
+  with ADOQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Text:='Select bil_text,bil_help FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
+    Open;
+    First;
+    FTrainer.memo1.Lines.Text:=Fields[0].AsString;
+    FTrainer.memo6.Lines.Text:=Fields[1].AsString;
+//    FTrainer.memo2.Lines.Text:=Fields[2].ToString();
+    Close;
+    SQL.Clear;
+    SQL.Text:='Select ans_text FROM answers where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
+    Open;
+    First;
+    FTrainer.memo2.Lines.Text:=Fields[0].AsString;
+  end;
+end;
+
+procedure TDataModule1.DataModuleCreate(Sender: TObject);  //РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р‘Р”
 begin
   var PASSWORD_TO_DB := EmptyStr;
   try
@@ -78,13 +100,13 @@ begin
     ADOConnection1.Connected := true;
   except on E : Exception do
     begin
-      ShowMessage(Format('Ошибка при подключении к БД. %s', [E.Message]));
+      ShowMessage(Format('РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє Р‘Р”. %s', [E.Message]));
       Application.Terminate;
     end;
   end;
 end;
 
-procedure TDataModule1.ExamQuery(); //Запуск экзамена
+procedure TDataModule1.ExamQuery(); //Р—Р°РїСѓСЃРє СЌРєР·Р°РјРµРЅР°
 begin
     with ADOQuery1 do
   begin
@@ -104,7 +126,7 @@ begin
   end;
 end;
 
-function TDataModule1.LoadAnswer():string; //Функция,получения ответа на билет из БД
+function TDataModule1.LoadAnswer():string; //Р¤СѓРЅРєС†РёСЏ,РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РЅР° Р±РёР»РµС‚ РёР· Р‘Р”
 begin
 with DataModule1.ADOQuery1 do
   begin

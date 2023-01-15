@@ -1,12 +1,9 @@
 ﻿unit UTrainer;
-
 interface
-
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG, UConfigClient, System.ImageList,
   Vcl.ImgList,System.StrUtils;
-
 type
   TMode = (Education=1,Exam=2,Result=3);
   TFTrainer = class(TForm)
@@ -51,7 +48,6 @@ type
   public
     { Public declarations }
   end;
-
 var
   FTrainer: TFTrainer;
   index_vopr:Integer;
@@ -59,13 +55,9 @@ var
   res_:array[1..20]of Integer;
   im:array[1..20]of TImage;
   sec,min,final_sec:Integer;
-
 implementation
-
 uses UMainMenu, UResults,DataModule;
-
 {$R *.dfm}
-
 procedure TFTrainer.load_tets();
 var
   i:Integer;
@@ -79,21 +71,20 @@ begin
   pyt1 := Config.PathTickets + IntToStr(number_bil)+'_bilet/';
   if(DirectoryExists(pyt1))then
   begin
-    memo1.Lines.LoadFromFile(pyt1+IntToStr(index_vopr)+'_text.txt');
-    memo6.Lines.LoadFromFile(pyt1+IntToStr(index_vopr)+'_help.txt');
+  DataModule1.LoadQuestion();
     if(FileExists(pyt1+IntToStr(index_vopr)+'_pic.jpg'))then
       Image1.Picture.LoadFromFile(pyt1+IntToStr(index_vopr)+'_pic.jpg') else
       Image1.Picture.Graphic:=nil;
-    memo2.Lines.LoadFromFile(pyt1+IntToStr(index_vopr)+'_otv.txt');
+
     tmp_str:=memo2.lines.text;
     memo2.Clear;
     while (pos('#',tmp_str) > 0) do
     begin
       if(pos('#',tmp_str) > 0)then
       begin
-        tmp_otv:=Copy(tmp_str,pos('#',tmp_str)+2,pos(#13#10,tmp_str)-2);
+        tmp_otv:=Copy(tmp_str,pos('#',tmp_str)+2,pos('.',tmp_str)-2);
         inc(kol_otv);
-        Delete(tmp_str,pos('#',tmp_str),pos(#13#10,tmp_str));
+        Delete(tmp_str,pos('#',tmp_str),pos('.',tmp_str));
         if(kol_otv = 1)then
           memo2.Text:=tmp_otv;
         if(kol_otv = 2)then
@@ -115,7 +106,6 @@ begin
       StatusBar1.Panels[1].Text:='Билет№'+IntToStr(number_bil)+'        Вопрос '+IntToStr(index_vopr)+' из 20';
   end;
 end;
-
 procedure TFTrainer.Timer1Timer(Sender: TObject);
 var
   sec_,min_:String;
@@ -143,9 +133,7 @@ begin
     flag_ex:=true;
     kol_error:=3;
   end;
-
 end;
-
 
 procedure TFTrainer.valid_test();
 var
@@ -160,9 +148,7 @@ begin
     if(RadioButton4.Checked)then
       res[index_vopr]:='№4';
    true_otv:=DataModule1.LoadAnswer();
-
   im[index_vopr].Picture.Bitmap := nil;
-
   if(true_otv = res[index_vopr])then
   begin
     ImageList1.GetBitmap(0, im[index_vopr].Picture.Bitmap);
@@ -173,7 +159,6 @@ begin
     res_[index_vopr]:=0;
   end;
 end;
-
 procedure TFTrainer.RemoveAnswers();   // Функция, обнуляющая выбранный ответ
 begin
   RadioButton1.Checked:=False;
@@ -181,16 +166,14 @@ begin
   RadioButton3.Checked:=False;
   RadioButton4.Checked:=False;
 end;
-
-procedure TFTrainer.EnableButtons(); //Функция, включающая RadioButton 
+procedure TFTrainer.EnableButtons(); //Функция, включающая RadioButton
 begin
   RadioButton1.Enabled:=True;
   RadioButton2.Enabled:=True;
   RadioButton3.Enabled:=True;
   RadioButton4.Enabled:=True;
 end;
-
-procedure TFTrainer.UneditableAnswers(); //Функия, запрещающая редактирование выбранного ответа
+procedure TFTrainer.UneditableAnswers(); //Функция, запрещающая редактирование выбранного ответа
 var value:integer;
 begin
   value:= StrToInt(Copy(res[index_vopr],2,1));
@@ -211,7 +194,6 @@ begin
   end;
 end;
 
-
 procedure TFTrainer.Button2Click(Sender: TObject);
 begin
     if((index_vopr-1) > 0)then
@@ -224,7 +206,6 @@ begin
     end else
       ShowMessage('Вы находитесь на первом вопросе !');
 end;
-
 procedure TFTrainer.Button3Click(Sender: TObject);
 begin
   if((RadioButton1.Visible)and(RadioButton1.Checked))or((RadioButton2.Visible)and(RadioButton2.Checked))or((RadioButton3.Visible)and(RadioButton3.Checked))or((RadioButton4.Visible)and(RadioButton4.Checked))then
@@ -245,35 +226,31 @@ begin
    end else begin valid_test(); Button5.Visible:=True; button3.Enabled:=False; end;
   end else ShowMessage('Выбирете вариант ответа !');
 end;
-
 procedure TFTrainer.Button4Click(Sender: TObject);
 begin
   Panel1.Visible:=True;
 end;
-
 procedure TFTrainer.Button5Click(Sender: TObject);
 begin
   FResults := TFResults.Create(nil);
   FResults.Show();
   FTrainer.Close;
 end;
-
 procedure TFTrainer.Button6Click(Sender: TObject);
 begin
   Panel1.Visible:=False;
 end;
-
 procedure TFTrainer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action:=caFree;
   FTrainer:=nil;
   if(FResults=nil) or (FResults.Showing=False) then  //Если,форма с результатами закрыта, то выходим в меню
   begin
-  FMainMenu.Show;
+
+  FMainMenu.Show;
   FMainMenu.GroupBox1.Visible:=False;
   end;
 end;
-
 procedure TFTrainer.FormShow(Sender: TObject);
 var
   i:Integer;
@@ -318,5 +295,4 @@ begin
     Button6.Enabled:=False;
   end;
 end;
-
 end.
