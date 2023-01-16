@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, System.ImageList, Vcl.ImgList;
+  Dialogs, StdCtrls, ExtCtrls, System.ImageList, Vcl.ImgList,Mode;
 
 type
   TFResults = class(TForm)
@@ -138,7 +138,7 @@ begin
   begin
     FResults.Close;
     FTrainer := TFTrainer.Create(nil);
-    rejim:=Ord(Education);
+    rejim:=Ord(lookHint);
     FTrainer.Show();
     index_vopr:=Listbox1.ItemIndex+1;
     FTrainer.load_tets();

@@ -62,7 +62,12 @@ end;
 
 procedure TFMainMenu.Button3Click(Sender: TObject);
 begin
- DataModule1.ExamQuery();
+ kol_bilets:=DataModule1.ExamQuery();
+ rejim:=Ord(Exam);
+ flag_ex:=True;
+ FTrainer:= TFTrainer.Create(Application);
+ FTrainer.Show();
+ FMainMenu.Hide;
 end;
 
 procedure TFMainMenu.Button4Click(Sender: TObject);

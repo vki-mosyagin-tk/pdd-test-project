@@ -6,12 +6,17 @@ object DataModule1: TDataModule1
   object ADOQuery1: TADOQuery
     Connection = ADOConnection1
     Parameters = <>
-    Left = 56
-    Top = 48
+    Left = 24
+    Top = 88
   end
   object ADOConnection1: TADOConnection
     Provider = 'Microsoft.Jet.OLEDB.4.0'
-    Left = 96
+    Left = 64
     Top = 48
+  end
+  object ADOTable1: TADOTable
+    Connection = ADOConnection1
+    Left = 160
+    Top = 56
   end
 end

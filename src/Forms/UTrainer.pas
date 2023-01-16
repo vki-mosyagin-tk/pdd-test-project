@@ -3,9 +3,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG, UConfigClient, System.ImageList,
-  Vcl.ImgList,System.StrUtils;
+  Vcl.ImgList,System.StrUtils,Mode;
 type
-  TMode = (Education=1,Exam=2,Result=3);
+  Mode = (Education,Exam,lookHint);
   TFTrainer = class(TForm)
     Button1: TButton;
     Image1: TImage;
@@ -50,8 +50,9 @@ type
   end;
 var
   FTrainer: TFTrainer;
+  //edu_mode: TMode;
   index_vopr:Integer;
-  res:array[1..20]of string;
+  res:array[1..20]of integer;
   res_:array[1..20]of Integer;
   im:array[1..20]of TImage;
   sec,min,final_sec:Integer;
@@ -71,11 +72,13 @@ begin
   pyt1 := Config.PathTickets + IntToStr(number_bil)+'_bilet/';
   if(DirectoryExists(pyt1))then
   begin
-  DataModule1.LoadQuestion();
+  FTrainer.memo1.Lines.Text:=DataModule1.LoadQuestion();
+  FTrainer.memo2.Lines.Text:=DataModule1.LoadAnswers();
+  FTrainer.memo6.Lines.Text:=DataModule1.LoadHelp();
     if(FileExists(pyt1+IntToStr(index_vopr)+'_pic.jpg'))then
+      //DataModule1.LoadPicure(); //не совсем понял как брать картинки из базы
       Image1.Picture.LoadFromFile(pyt1+IntToStr(index_vopr)+'_pic.jpg') else
       Image1.Picture.Graphic:=nil;
-
     tmp_str:=memo2.lines.text;
     memo2.Clear;
     while (pos('#',tmp_str) > 0) do
@@ -140,16 +143,16 @@ var
   true_otv:String;
 begin
     if(RadioButton1.Checked)then
-      res[index_vopr]:='№1';
+      res[index_vopr]:=1;
     if(RadioButton2.Checked)then
-      res[index_vopr]:='№2';
+      res[index_vopr]:=2;
     if(RadioButton3.Checked)then
-      res[index_vopr]:='№3';
+      res[index_vopr]:=3;
     if(RadioButton4.Checked)then
-      res[index_vopr]:='№4';
-   true_otv:=DataModule1.LoadAnswer();
+      res[index_vopr]:=4;
+   true_otv:=DataModule1.LoadRightAnswer();
   im[index_vopr].Picture.Bitmap := nil;
-  if(true_otv = res[index_vopr])then
+  if(true_otv = '№'+IntToStr(res[index_vopr]))then
   begin
     ImageList1.GetBitmap(0, im[index_vopr].Picture.Bitmap);
     res_[index_vopr]:=1;
@@ -176,7 +179,7 @@ end;
 procedure TFTrainer.UneditableAnswers(); //Функция, запрещающая редактирование выбранного ответа
 var value:integer;
 begin
-  value:= StrToInt(Copy(res[index_vopr],2,1));
+  value:= res[index_vopr];
   case value of
   1:begin RadioButton1.Checked:=True; RadioButton2.Enabled:=False; RadioButton3.Enabled:=False; RadioButton4.Enabled:=False;  end;
   2:begin RadioButton1.Enabled:=False; RadioButton2.Checked:=True; RadioButton3.Enabled:=False; RadioButton4.Enabled:=False; end;
@@ -214,7 +217,7 @@ begin
    begin
      valid_test();
      inc(index_vopr);
-     if (res[index_vopr]<>'') 
+     if (res[index_vopr]<> 0)
      then UneditableAnswers() 
      else
      begin
@@ -234,7 +237,7 @@ procedure TFTrainer.Button5Click(Sender: TObject);
 begin
   FResults := TFResults.Create(nil);
   FResults.Show();
-  FTrainer.Close;
+  FTrainer.Hide;
 end;
 procedure TFTrainer.Button6Click(Sender: TObject);
 begin
@@ -246,7 +249,6 @@ begin
   FTrainer:=nil;
   if(FResults=nil) or (FResults.Showing=False) then  //Если,форма с результатами закрыта, то выходим в меню
   begin
-
   FMainMenu.Show;
   FMainMenu.GroupBox1.Visible:=False;
   end;
@@ -268,7 +270,7 @@ begin
     im[i].Center:=True;
     im[i].Stretch:=True;
     im[i].Refresh;
-    res[i]:='';
+    res[i]:=0;
   end;
   index_vopr:=1;
   if(rejim = Ord(Education))then
@@ -287,7 +289,7 @@ begin
     min:=0;
     Timer1.Enabled:=True;
   end;
-  if(rejim = 3)then
+  if(rejim = Ord(lookHint))then
   begin
     Panel1.Visible:=True;
     Button1.Visible:=False;

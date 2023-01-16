@@ -4,16 +4,21 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer;
+  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer,jpeg;
 
 type
   TDataModule1 = class(TDataModule)
   ADOQuery1: TADOQuery;
   ADOConnection1: TADOConnection;
+    ADOTable1: TADOTable;
   procedure BilQuery();
-  procedure LoadQuestion();
-  procedure ExamQuery();
-  function LoadAnswer():string;
+  function LoadQuestion():string;
+  function ExamQuery():integer;
+  function LoadAnswers():string;
+  function LoadRightAnswer():string;
+  function LoadHelp():string;
+  procedure LoadPicure();
+
     procedure DataModuleCreate(Sender: TObject);
 
   private
@@ -52,24 +57,75 @@ begin
   end;
 end;
 
-procedure TDataModule1.LoadQuestion();
+function TDataModule1.LoadQuestion():string;
 begin
   with ADOQuery1 do
   begin
     Close;
     SQL.Clear;
-    SQL.Text:='Select bil_text,bil_help FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
+    SQL.Text:='Select bil_text FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
     Open;
     First;
-    FTrainer.memo1.Lines.Text:=Fields[0].AsString;
-    FTrainer.memo6.Lines.Text:=Fields[1].AsString;
-//    FTrainer.memo2.Lines.Text:=Fields[2].ToString();
+    Result:=Fields[0].AsString;
+  end;
+end;
+
+function TDataModule1.LoadAnswers():string;
+begin
+   with ADOQuery1 do
+  begin
     Close;
     SQL.Clear;
-    SQL.Text:='Select ans_text FROM answers where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
+    SQL.Text:='Select ans_text FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
     Open;
     First;
-    FTrainer.memo2.Lines.Text:=Fields[0].AsString;
+    Result:=Fields[0].AsString;
+  end;
+end;
+
+function TDataModule1.LoadHelp():string;
+begin
+   with ADOQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Text:='Select help_text FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil);
+    Open;
+    First;
+    Result:=Fields[0].AsString;
+  end;
+end;
+
+procedure TDataModule1.LoadPicure();
+var
+ jpg : TJPEGImage;
+ Blob:TMemoryStream;
+ bmp:TBitmap;
+begin
+with ADOQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Text:='Select bil_pic FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil)+' and bil_pic <> "" ';
+    Open;
+    First;
+    bmp:=TBitmap.Create;
+    jpg:=TJPEGImage.Create;
+    try
+    Blob:=TADOBlobStream.Create(TBlobField(ADOQuery1.FieldByName('bil_pic')),bmRead);
+    jpg.LoadFromStream(Blob);
+    FTrainer.Image1.Picture.Assign(jpg);
+    Blob.Free();
+    bmp.Free();
+    jpg.Free();
+    except
+    on e:Exception do
+    begin
+    jpg.Free;
+    Blob.Free;
+    bmp.Free;
+    end;
+    end;
   end;
 end;
 
@@ -106,7 +162,7 @@ begin
   end;
 end;
 
-procedure TDataModule1.ExamQuery(); //Запуск экзамена
+function TDataModule1.ExamQuery():integer; //Запуск экзамена
 begin
     with ADOQuery1 do
   begin
@@ -116,17 +172,12 @@ begin
     Open;
     if(Fields[0].AsString <> '')then
     begin
-      kol_bilets:=Fields[0].AsInteger;
-      rejim:=Ord(Exam);
-      flag_ex:=True;
-      FTrainer:= TFTrainer.Create(Application);
-      FTrainer.Show();
-      FMainMenu.Hide;
+      Result:=Fields[0].AsInteger;
     end;
   end;
 end;
 
-function TDataModule1.LoadAnswer():string; //Функция,получения ответа на билет из БД
+function TDataModule1.LoadRightAnswer():string; //Функция,получения ответа на билет из БД
 begin
 with DataModule1.ADOQuery1 do
   begin
