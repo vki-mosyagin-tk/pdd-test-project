@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient;
+  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient, Vcl.ComCtrls;
 
 type
   TFMainMenu = class(TForm)
@@ -20,6 +20,25 @@ type
     ComboBox1: TComboBox;
     Button7: TButton;
     Memo1: TMemo;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Label3: TLabel;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Button8: TButton;
+    GroupBox3: TGroupBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
+    Edit6: TEdit;
+    DateTimePicker1: TDateTimePicker;
+    Button9: TButton;
+    Label9: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -27,6 +46,10 @@ type
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Label9Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
+
 
   private
     { Private declarations }
@@ -99,4 +122,24 @@ begin
     ShowMessage('Вы не выбрали билет!');
 end;
 
+procedure TFMainMenu.Button8Click(Sender: TObject);  //Кнопка авторизации
+begin
+if(DataModule1.IsUserExist(Edit1.Text,Edit2.Text)=True) then
+GroupBox2.Visible:=False;
+end;
+
+
+procedure TFMainMenu.Button9Click(Sender: TObject); //Кнопка "зарегистрироваться"
+begin
+if(DataModule1.InsertNewUser(Edit3.Text,Edit4.Text,Edit5.Text,Edit6.Text,DateTimePicker1.Date)=TRUE) then
+begin
+GroupBox3.Visible:=False;
+end;
+end;
+
+procedure TFMainMenu.Label9Click(Sender: TObject); // Переход к регистрации
+begin
+GroupBox3.Visible:=True;
+GroupBox2.Visible:=False;
+end;
 end.

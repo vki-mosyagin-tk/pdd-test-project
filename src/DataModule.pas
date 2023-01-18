@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer,jpeg;
+  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer,jpeg,System.Hash;
 
 type
   TDataModule1 = class(TDataModule)
@@ -17,7 +17,10 @@ type
   function LoadAnswers():string;
   function LoadRightAnswer():string;
   function LoadHelp():string;
+  function IsUserExist(email:string;pass:string):boolean;
+  function InsertNewUser(firstName:string;lastName:string;email:string;pass:string;bdayDate:TDateTime):boolean;
   procedure LoadPicure();
+
 
     procedure DataModuleCreate(Sender: TObject);
 
@@ -187,6 +190,65 @@ with DataModule1.ADOQuery1 do
     Parameters.ParamByName('i').Value:=number_bil;
     Open;
     Result:=Fields[index_vopr].AsString;
+  end;
+end;
+
+function TDataModule1.InsertNewUser(firstName:string;lastName:string;email:string;pass:string;bdayDate:TDateTime):boolean; //Внесение данных пользователя в БД (Регистрация)
+begin
+  if ((firstName<>'') and (lastName<>'') and (email<>'') and (pass<>''))  then // Проверка на введение всех данных
+  begin
+    with DataModule1.ADOQuery1 do
+    begin
+      Close;
+      SQL.Clear;
+      SQL.Text:='SELECT * FROM users WHERE email=:p1';
+      Parameters.ParamByName('p1').Value := email;
+      Open;
+      if eof then   // Если такой email не зарегистрирован, данные вносятся в БД
+        begin
+          Close;
+          SQL.Clear;
+          try
+          ADOQuery1.SQL.Add('INSERT INTO users (first_name,second_name,email,passw,bday_date)');
+          ADOQuery1.SQL.Add('VALUES (:p1,:p2,:p3,:p4,:p5);');
+          Parameters.ParamByName('p1').Value := firstName;
+          Parameters.ParamByName('p2').Value :=lastName;
+          Parameters.ParamByName('p3').Value := email;
+          Parameters.ParamByName('p4').Value :=System.Hash.THashMD5.GetHashString(pass);
+          Parameters.ParamByName('p5').Value := FormatDateTime('dd-mm-yyyy',bdayDate);
+          ADOQuery1.ExecSQL;
+          ADOQuery1.Close;
+          Result:=TRUE;
+          except
+          ShowMessage('Что-то пошло не так');
+          Result:=FALSE;
+          end;
+        end
+        else
+        ShowMessage('Пользователь с таким e-mail уже существует');
+    end;
+  end
+  else
+  ShowMessage('Введены не все данные');
+end;
+
+function TDataModule1.IsUserExist(email:string;pass:string):boolean; // Проверка, существует ли такой пользователь
+begin
+  with DataModule1.ADOQuery1 do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Text:='SELECT * FROM users WHERE email=:p1 and passw=:p2';
+    Parameters.ParamByName('p1').Value := email;
+    Parameters.ParamByName('p2').Value :=System.Hash.THashMD5.GetHashString(pass);
+    Open;
+    if eof then
+    begin
+     ShowMessage('Неверный логин или пароль');
+     Result:=False;
+    end
+    else
+    Result:=True;
   end;
 end;
 end.

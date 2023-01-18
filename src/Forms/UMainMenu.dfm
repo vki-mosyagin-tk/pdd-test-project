@@ -205,4 +205,223 @@ object FMainMenu: TFMainMenu
       OnClick = Button7Click
     end
   end
+  object GroupBox2: TGroupBox
+    Left = 31
+    Top = 68
+    Width = 473
+    Height = 377
+    TabOrder = 6
+    object Label1: TLabel
+      Left = 210
+      Top = 20
+      Width = 52
+      Height = 23
+      Caption = 'E-mail'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label3: TLabel
+      Left = 210
+      Top = 114
+      Width = 65
+      Height = 23
+      Caption = #1055#1072#1088#1086#1083#1100
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label9: TLabel
+      Left = 130
+      Top = 186
+      Width = 207
+      Height = 16
+      Caption = #1053#1077#1090' '#1072#1082#1082#1072#1091#1085#1090#1072'? '#1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100#1089#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      OnClick = Label9Click
+    end
+    object Edit1: TEdit
+      Left = 119
+      Top = 62
+      Width = 239
+      Height = 28
+      Hint = 'E-mail'
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = False
+      TabOrder = 0
+    end
+    object Edit2: TEdit
+      Left = 119
+      Top = 146
+      Width = 239
+      Height = 28
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+    object Button8: TButton
+      Left = 181
+      Top = 219
+      Width = 108
+      Height = 47
+      Caption = #1042#1086#1081#1090#1080
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      OnClick = Button8Click
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 31
+    Top = 68
+    Width = 482
+    Height = 389
+    Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1103
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 7
+    Visible = False
+    object Label4: TLabel
+      Left = 33
+      Top = 51
+      Width = 29
+      Height = 19
+      Caption = #1048#1084#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 33
+      Top = 84
+      Width = 65
+      Height = 19
+      Caption = #1060#1072#1084#1080#1083#1080#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label6: TLabel
+      Left = 33
+      Top = 121
+      Width = 113
+      Height = 19
+      Caption = #1044#1072#1090#1072' '#1088#1086#1078#1076#1077#1085#1080#1103
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label7: TLabel
+      Left = 34
+      Top = 152
+      Width = 45
+      Height = 19
+      Caption = 'E-mail'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label8: TLabel
+      Left = 34
+      Top = 189
+      Width = 54
+      Height = 19
+      Caption = #1055#1072#1088#1086#1083#1100
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Edit3: TEdit
+      Left = 152
+      Top = 48
+      Width = 204
+      Height = 27
+      TabOrder = 0
+    end
+    object Edit4: TEdit
+      Left = 152
+      Top = 81
+      Width = 204
+      Height = 27
+      TabOrder = 1
+    end
+    object Edit5: TEdit
+      Left = 152
+      Top = 153
+      Width = 204
+      Height = 27
+      TabOrder = 2
+    end
+    object Edit6: TEdit
+      Left = 152
+      Top = 186
+      Width = 206
+      Height = 27
+      TabOrder = 3
+    end
+    object DateTimePicker1: TDateTimePicker
+      Left = 152
+      Top = 119
+      Width = 204
+      Height = 27
+      Date = 44943.000000000000000000
+      Time = 0.986924594908487100
+      TabOrder = 4
+    end
+    object Button9: TButton
+      Left = 164
+      Top = 233
+      Width = 166
+      Height = 48
+      Caption = #1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100#1089#1103
+      TabOrder = 5
+      OnClick = Button9Click
+    end
+  end
 end
