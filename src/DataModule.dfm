@@ -10,6 +10,7 @@ object DataModule1: TDataModule1
     Top = 88
   end
   object ADOConnection1: TADOConnection
+    LoginPrompt = False
     Provider = 'Microsoft.Jet.OLEDB.4.0'
     Left = 64
     Top = 48

@@ -3,7 +3,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, JPEG, UConfigClient, System.ImageList,
-  Vcl.ImgList,System.StrUtils,Mode;
+  Vcl.ImgList,System.StrUtils,Mode,UStatistics;
 type
   Mode = (Education,Exam,lookHint);
   TFTrainer = class(TForm)
@@ -51,11 +51,12 @@ type
 var
   FTrainer: TFTrainer;
   //edu_mode: TMode;
+  stats:TStatistics;
   index_vopr:Integer;
   res:array[1..20]of integer;
   res_:array[1..20]of Integer;
   im:array[1..20]of TImage;
-  sec,min,final_sec:Integer;
+  sec,min:Integer;
 implementation
 uses UMainMenu, UResults,DataModule;
 {$R *.dfm}
@@ -114,7 +115,7 @@ var
   sec_,min_:String;
 begin
       sec:=sec+1;
-      final_sec:=final_sec+1;
+      stats.TotalTimeInSeconds:=stats.TotalTimeInSeconds+1;
       if (sec=60) then
         begin
           min:=min+1;
@@ -156,10 +157,12 @@ begin
   begin
     ImageList1.GetBitmap(0, im[index_vopr].Picture.Bitmap);
     res_[index_vopr]:=1;
+    stats.TotalTrueAnswers:=stats.TotalTrueAnswers+1;
   end else
   begin
     ImageList1.GetBitmap(1, im[index_vopr].Picture.Bitmap);
     res_[index_vopr]:=0;
+    stats.TotalInvalidAnswers:=stats.TotalInvalidAnswers+1;
   end;
 end;
 procedure TFTrainer.RemoveAnswers();   // Функция, обнуляющая выбранный ответ
@@ -215,17 +218,21 @@ begin
   begin
    if((index_vopr+1) <= 20)then
    begin
-     valid_test();
+     if (res[index_vopr+1]<> 0)
+     then
+     begin
      inc(index_vopr);
-     if (res[index_vopr]<> 0)
-     then UneditableAnswers() 
+     UneditableAnswers();
+     end
      else
      begin
+      valid_test();
+      inc(index_vopr);
       EnableButtons();
       RemoveAnswers();
      end;
      load_tets();
-     
+
    end else begin valid_test(); Button5.Visible:=True; button3.Enabled:=False; end;
   end else ShowMessage('Выбирете вариант ответа !');
 end;
@@ -235,6 +242,7 @@ begin
 end;
 procedure TFTrainer.Button5Click(Sender: TObject);
 begin
+  DataModule1.InsertUserResults(user_id,IntToStr(stats.TotalTimeInSeconds),number_bil,IntToStr(stats.TotalInvalidAnswers),IntToStr(stats.TotalTrueAnswers),stats.rejim);
   FResults := TFResults.Create(nil);
   FResults.Show();
   FTrainer.Hide;
@@ -251,12 +259,14 @@ begin
   begin
   FMainMenu.Show;
   FMainMenu.GroupBox1.Visible:=False;
+  stats.Free;
   end;
 end;
 procedure TFTrainer.FormShow(Sender: TObject);
 var
   i:Integer;
 begin
+  stats:=TStatistics.Create;
   for i:=1 to 20 do
   begin
     im[i]:=Timage.Create(FTrainer);
@@ -278,6 +288,8 @@ begin
     load_tets();
     StatusBar1.Panels[0].Text:='';
     StatusBar1.Panels[2].text:='Обучение.';
+    Timer1.Enabled:=True;
+    stats.rejim:='Обучение';
   end;
   if(rejim = Ord(Exam))then
   begin
@@ -288,6 +300,7 @@ begin
     sec:=0;
     min:=0;
     Timer1.Enabled:=True;
+    stats.rejim:='Экзамен';
   end;
   if(rejim = Ord(lookHint))then
   begin

@@ -125,6 +125,11 @@
             <Form>DataModule1</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="UStatistics.pas"/>
+        <DCCReference Include="Forms\UDBResults.pas">
+            <Form>FDBResults</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

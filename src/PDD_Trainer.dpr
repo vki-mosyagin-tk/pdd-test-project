@@ -7,7 +7,9 @@ uses
   UMainMenu in 'Forms\UMainMenu.pas' {FMainMenu},
   UResults in 'Forms\UResults.pas' {FResults},
   UTrainer in 'Forms\UTrainer.pas' {FTrainer},
-  DataModule in 'DataModule.pas' {DataModule1: TDataModule};
+  DataModule in 'DataModule.pas' {DataModule1: TDataModule},
+  UStatistics in 'UStatistics.pas',
+  UDBResults in 'Forms\UDBResults.pas' {FDBResults};
 
 {$R *.res}
 

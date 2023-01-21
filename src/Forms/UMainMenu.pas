@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient, Vcl.ComCtrls;
+  Dialogs, StdCtrls, ExtCtrls, UConfigClient, Vcl.ComCtrls;
 
 type
   TFMainMenu = class(TForm)
@@ -39,6 +39,7 @@ type
     DateTimePicker1: TDateTimePicker;
     Button9: TButton;
     Label9: TLabel;
+    Button10: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -49,6 +50,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Label9Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
 
 
   private
@@ -60,15 +62,22 @@ type
 var
   FMainMenu: TFMainMenu;
   number_bil:integer;
-  rejim,kol_bilets:Integer;
+  rejim,kol_bilets,user_id:Integer;
   flag_ex:boolean;
 
 
 implementation
 
-uses UTrainer,DataModule;
+uses UTrainer,DataModule, UDBResults;
 
 {$R *.dfm}
+
+procedure TFMainMenu.Button10Click(Sender: TObject);
+begin
+FMainMenu.Hide;
+Application.CreateForm(TFDBResults,FDBResults);
+FDBResults.ShowModal;
+end;
 
 procedure TFMainMenu.Button1Click(Sender: TObject);
 begin
@@ -95,12 +104,22 @@ end;
 
 procedure TFMainMenu.Button4Click(Sender: TObject);
 begin
+  button1.Visible:= False;
+  button2.Visible:= False;
+  button3.Visible:= False;
+  button4.Visible:= False;
+  button10.Visible:= False;
   Panel1.Visible := True;
 end;
 
 procedure TFMainMenu.Button5Click(Sender: TObject);
 begin
   Panel1.Visible:=False;
+  button1.Visible:= True;
+  button2.Visible:= True;
+  button3.Visible:= True;
+  button4.Visible:= True;
+  button10.Visible:= True;
 end;
 
 procedure TFMainMenu.Button6Click(Sender: TObject);
@@ -124,7 +143,8 @@ end;
 
 procedure TFMainMenu.Button8Click(Sender: TObject);  //Кнопка авторизации
 begin
-if(DataModule1.IsUserExist(Edit1.Text,Edit2.Text)=True) then
+user_id:=DataModule1.IsUserExist(Edit1.Text,Edit2.Text);
+if(user_id<>-1) then
 GroupBox2.Visible:=False;
 end;
 
