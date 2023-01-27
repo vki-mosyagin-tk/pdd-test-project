@@ -38,8 +38,10 @@ type
     Edit6: TEdit;
     DateTimePicker1: TDateTimePicker;
     Button9: TButton;
-    Label9: TLabel;
     Button10: TButton;
+    Button11: TButton;
+    Button12: TButton;
+    function IsEmail(email:string):Boolean;
     procedure Button1Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -47,11 +49,11 @@ type
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
-    procedure Label9Click(Sender: TObject);
+    procedure BtnLogin(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
-
+    procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -74,9 +76,21 @@ uses UTrainer,DataModule, UDBResults;
 
 procedure TFMainMenu.Button10Click(Sender: TObject);
 begin
-FMainMenu.Hide;
-Application.CreateForm(TFDBResults,FDBResults);
-FDBResults.ShowModal;
+  FMainMenu.Hide;
+  Application.CreateForm(TFDBResults,FDBResults);
+  FDBResults.ShowModal;
+end;
+
+procedure TFMainMenu.Button11Click(Sender: TObject);
+begin
+  GroupBox3.Visible:=True;
+  GroupBox2.Visible:=False;
+end;
+
+procedure TFMainMenu.Button12Click(Sender: TObject);
+begin
+GroupBox2.Visible:=True;
+GroupBox3.Visible:=False;
 end;
 
 procedure TFMainMenu.Button1Click(Sender: TObject);
@@ -127,6 +141,25 @@ begin
   GroupBox1.Visible:=False;
 end;
 
+function TFMainMenu.IsEmail(email:string):boolean;
+var
+  i: integer;
+  namePart, serverPart: string;
+begin
+  Result:= false;
+  i:= Pos('@', email);
+  if i = 0 then
+    Exit;
+  namePart:= Copy(email, 1, i - 1);
+  serverPart:= Copy(email, i + 1, Length(email));
+  if (Length(namePart) = 0) or ((Length(serverPart) < 5)) then
+    Exit;
+  i:= Pos('.', serverPart);
+  if (i = 0) or (i > (Length(serverPart) - 2)) then
+    Exit;
+  Result:= True;
+end;
+
 procedure TFMainMenu.Button7Click(Sender: TObject);
 begin
   if(ComboBox1.ItemIndex <> -1)then
@@ -141,25 +174,26 @@ begin
     ShowMessage('Вы не выбрали билет!');
 end;
 
-procedure TFMainMenu.Button8Click(Sender: TObject);  //Кнопка авторизации
+procedure TFMainMenu.BtnLogin(Sender: TObject);  //Кнопка авторизации
 begin
-user_id:=DataModule1.IsUserExist(Edit1.Text,Edit2.Text);
+user_id:=DataModule1.GetUserId(Edit1.Text,Edit2.Text);
 if(user_id<>-1) then
 GroupBox2.Visible:=False;
 end;
 
-
 procedure TFMainMenu.Button9Click(Sender: TObject); //Кнопка "зарегистрироваться"
+var s:string;
 begin
-if(DataModule1.InsertNewUser(Edit3.Text,Edit4.Text,Edit5.Text,Edit6.Text,DateTimePicker1.Date)=TRUE) then
-begin
-GroupBox3.Visible:=False;
-end;
-end;
-
-procedure TFMainMenu.Label9Click(Sender: TObject); // Переход к регистрации
-begin
-GroupBox3.Visible:=True;
-GroupBox2.Visible:=False;
+if IsEmail(Edit5.Text)=True then
+  begin
+    if(DataModule1.InsertNewUser(Edit3.Text,Edit4.Text,Edit5.Text,Edit6.Text,DateTimePicker1.Date)=TRUE) then
+    begin
+      GroupBox3.Visible:=False;
+    end;
+  end
+  else
+  begin
+    ShowMessage('Введите корректный email');
+  end;
 end;
 end.

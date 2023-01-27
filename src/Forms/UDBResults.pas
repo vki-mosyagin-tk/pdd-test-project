@@ -5,14 +5,14 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs,Vcl.StdCtrls, Data.DB, Vcl.Grids,
-  Vcl.DBGrids;
+  Vcl.DBGrids, Data.Win.ADODB;
 
 type
   TFDBResults = class(TForm)
     Button1: TButton;
+    Label1: TLabel;
     DBGrid1: TDBGrid;
     DataSource1: TDataSource;
-    Label1: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -35,6 +35,8 @@ procedure TFDBResults.Button1Click(Sender: TObject);
 begin
 FDBResults.Close();
 end;
+
+
 
 procedure TFDBResults.FormClose(Sender: TObject; var Action: TCloseAction);
 begin

@@ -252,20 +252,6 @@ object FMainMenu: TFMainMenu
       Font.Style = []
       ParentFont = False
     end
-    object Label9: TLabel
-      Left = 130
-      Top = 186
-      Width = 207
-      Height = 16
-      Caption = #1053#1077#1090' '#1072#1082#1082#1072#1091#1085#1090#1072'? '#1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100#1089#1103
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      OnClick = Label9Click
-    end
     object Edit1: TEdit
       Left = 119
       Top = 62
@@ -298,8 +284,8 @@ object FMainMenu: TFMainMenu
       TabOrder = 1
     end
     object Button8: TButton
-      Left = 181
-      Top = 219
+      Left = 188
+      Top = 243
       Width = 108
       Height = 47
       Caption = #1042#1086#1081#1090#1080
@@ -310,7 +296,16 @@ object FMainMenu: TFMainMenu
       Font.Style = []
       ParentFont = False
       TabOrder = 2
-      OnClick = Button8Click
+      OnClick = BtnLogin
+    end
+    object Button11: TButton
+      Left = 176
+      Top = 192
+      Width = 125
+      Height = 35
+      Caption = #1047#1072#1088#1077#1075#1077#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100#1089#1103
+      TabOrder = 3
+      OnClick = Button11Click
     end
   end
   object GroupBox3: TGroupBox
@@ -437,6 +432,15 @@ object FMainMenu: TFMainMenu
       Caption = #1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100#1089#1103
       TabOrder = 5
       OnClick = Button9Click
+    end
+    object Button12: TButton
+      Left = 21
+      Top = 328
+      Width = 75
+      Height = 25
+      Caption = #1053#1072#1079#1072#1076
+      TabOrder = 6
+      OnClick = Button12Click
     end
   end
 end

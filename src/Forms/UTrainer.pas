@@ -73,13 +73,18 @@ begin
   pyt1 := Config.PathTickets + IntToStr(number_bil)+'_bilet/';
   if(DirectoryExists(pyt1))then
   begin
-  FTrainer.memo1.Lines.Text:=DataModule1.LoadQuestion();
-  FTrainer.memo2.Lines.Text:=DataModule1.LoadAnswers();
-  FTrainer.memo6.Lines.Text:=DataModule1.LoadHelp();
-    if(FileExists(pyt1+IntToStr(index_vopr)+'_pic.jpg'))then
-      //DataModule1.LoadPicure(); //не совсем понял как брать картинки из базы
+    FTrainer.memo1.Lines.Text:=DataModule1.LoadQuestion();
+    FTrainer.memo2.Lines.Text:=DataModule1.LoadAnswers();
+    FTrainer.memo6.Lines.Text:=DataModule1.LoadHelp();
+//    Image1.Picture := nil;
+     if(FileExists(pyt1+IntToStr(index_vopr)+'_pic.jpg'))then
       Image1.Picture.LoadFromFile(pyt1+IntToStr(index_vopr)+'_pic.jpg') else
       Image1.Picture.Graphic:=nil;
+//    var picBytes := DataModule1.LoadPicure(index_vopr, number_bil);
+//    if(Length(picBytes) > 0)then
+//    begin
+//      Image1.Picture.LoadFromStream(TBytesStream.Create(picBytes));
+//    end;
     tmp_str:=memo2.lines.text;
     memo2.Clear;
     while (pos('#',tmp_str) > 0) do
@@ -151,7 +156,7 @@ begin
       res[index_vopr]:=3;
     if(RadioButton4.Checked)then
       res[index_vopr]:=4;
-   true_otv:=DataModule1.LoadRightAnswer();
+   true_otv:=DataModule1.LoadRightAnswer(index_vopr, number_bil);
   im[index_vopr].Picture.Bitmap := nil;
   if(true_otv = '№'+IntToStr(res[index_vopr]))then
   begin
@@ -196,6 +201,7 @@ procedure TFTrainer.Button1Click(Sender: TObject);
 begin
   if(application.MessageBox(PChar('Желаете выйти в главное меню ?'),'Внимание!.',mb_YesNo or mb_iconquestion)=mrYes)then
   begin
+    Timer1.Enabled:=false;
     FTrainer.Close;
   end;
 end;
@@ -232,7 +238,6 @@ begin
       RemoveAnswers();
      end;
      load_tets();
-
    end else begin valid_test(); Button5.Visible:=True; button3.Enabled:=False; end;
   end else ShowMessage('Выбирете вариант ответа !');
 end;
@@ -242,7 +247,9 @@ begin
 end;
 procedure TFTrainer.Button5Click(Sender: TObject);
 begin
-  DataModule1.InsertUserResults(user_id,IntToStr(stats.TotalTimeInSeconds),number_bil,IntToStr(stats.TotalInvalidAnswers),IntToStr(stats.TotalTrueAnswers),stats.rejim);
+  if(stats.rejim<>'Просмотр') then
+  DataModule1.InsertUserResults(user_id,number_bil,stats);
+  Timer1.Enabled:=false;
   FResults := TFResults.Create(nil);
   FResults.Show();
   FTrainer.Hide;
@@ -253,6 +260,7 @@ begin
 end;
 procedure TFTrainer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  Timer1.Enabled:=false;
   Action:=caFree;
   FTrainer:=nil;
   if(FResults=nil) or (FResults.Showing=False) then  //Если,форма с результатами закрыта, то выходим в меню
@@ -288,6 +296,8 @@ begin
     load_tets();
     StatusBar1.Panels[0].Text:='';
     StatusBar1.Panels[2].text:='Обучение.';
+    sec:=0;
+    min:=0;
     Timer1.Enabled:=True;
     stats.rejim:='Обучение';
   end;
@@ -306,8 +316,10 @@ begin
   begin
     Panel1.Visible:=True;
     Button1.Visible:=False;
+    Timer1.Enabled:=False;
     Button5.Visible:=True;
     Button6.Enabled:=False;
+    stats.rejim:='Просмотр';
   end;
 end;
 end.

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer,jpeg,System.Hash;
+  Dialogs, StdCtrls, DB, ADODB, ExtCtrls, UConfigClient,UTrainer,jpeg,System.Hash,UStatistics;
 
 type
   TDataModule1 = class(TDataModule)
@@ -15,16 +15,19 @@ type
   function LoadQuestion():string;
   function ExamQuery():integer;
   function LoadAnswers():string;
-  function LoadRightAnswer():string;
+  function LoadRightAnswer(index_vopr:integer;number_bil:integer):string;
   function LoadHelp():string;
   function ShowResults(user_id:integer):TDataSet;
-  function IsUserExist(email:string;pass:string):integer;
+  function GetUserId(email:string;pass:string):integer;
   function InsertNewUser(firstName:string;lastName:string;email:string;pass:string;bdayDate:TDateTime):boolean;
-  function InsertUserResults(user_id:integer;spentTime:string;ticketNum:integer;InvalidAns:string;TrueAns:string;rejim:string):boolean;
-  procedure LoadPicure();
+  function InsertUserResults(user_id: Integer; ticketNum: Integer; stats:TStatistics):boolean;
+  function LoadPicure(index_vopr:integer;number_bil:integer):TBytes;
 
 
     procedure DataModuleCreate(Sender: TObject);
+
+
+
 
   private
     { Private declarations }
@@ -45,13 +48,17 @@ implementation
 
 uses UMainMenu;
 
-procedure TDataModule1.BilQuery();  //Процедура,выводящая билеты в ComboBox
+
+/// <summary>
+/// Процедура,выводящая билеты в ComboBox
+/// </summary>
+procedure TDataModule1.BilQuery();
 begin
   with ADOQuery1 do
   begin
     Close;
     SQL.Clear;
-    SQL.Text:='SELECT * FROM bilets';
+    SQL.Text:='SELECT DISTINCT number_bil FROM bils';
     Open;
     First;
     WHile not(eof) do
@@ -62,7 +69,10 @@ begin
   end;
 end;
 
-function TDataModule1.LoadQuestion():string; //Функция, передающая текст вопроса
+/// <summary>
+/// Функция, передающая текст вопроса
+/// </summary>
+function TDataModule1.LoadQuestion():string;
 begin
   with ADOQuery1 do
   begin
@@ -75,8 +85,10 @@ begin
   end;
 end;
 
-
-function TDataModule1.LoadAnswers():string; //Функция, передающая текст ответов
+/// <summary>
+/// Функция, передающая текст ответов
+/// </summary>
+function TDataModule1.LoadAnswers():string;
 begin
    with ADOQuery1 do
   begin
@@ -89,7 +101,10 @@ begin
   end;
 end;
 
-function TDataModule1.LoadHelp():string; //Функция, передающая текст помощи
+/// <summary>
+/// Функция, передающая текст помощи
+/// </summary>
+function TDataModule1.LoadHelp():string;
 begin
    with ADOQuery1 do
   begin
@@ -102,40 +117,43 @@ begin
   end;
 end;
 
-procedure TDataModule1.LoadPicure();
+/// <summary>
+/// Загрузка изображения из БД
+/// </summary>
+function TDataModule1.LoadPicure(index_vopr:integer;number_bil:integer):TBytes;
 var
  jpg : TJPEGImage;
- Blob:TMemoryStream;
+ blob:TMemoryStream;
  bmp:TBitmap;
 begin
 with ADOQuery1 do
   begin
     Close;
     SQL.Clear;
-    SQL.Text:='Select bil_pic FROM bils where number_question='+IntToStr(index_vopr)+' and number_bil='+InttoStr(number_bil)+' and bil_pic <> "" ';
+    SQL.Text:='Select bil_pic FROM bils where number_question=:p1 and number_bil=:p2 and bil_pic <> "" ';
+    Parameters.ParamByName('p1').Value :=index_vopr;
+    Parameters.ParamByName('p2').Value :=number_bil;
     Open;
     First;
-    bmp:=TBitmap.Create;
-    jpg:=TJPEGImage.Create;
+    blob := TADOBlobStream.Create(TBlobField(ADOQuery1.FieldByName('bil_pic')), bmRead);
     try
-    Blob:=TADOBlobStream.Create(TBlobField(ADOQuery1.FieldByName('bil_pic')),bmRead);
-    jpg.LoadFromStream(Blob);
-    FTrainer.Image1.Picture.Assign(jpg);
-    Blob.Free();
-    bmp.Free();
-    jpg.Free();
-    except
-    on e:Exception do
-    begin
-    jpg.Free;
-    Blob.Free;
-    bmp.Free;
-    end;
+    if blob.Size>0 then
+      begin
+       var firstBytesOLEObject := 274;
+       blob.Position := firstBytesOLEObject;
+       SetLength(Result, blob.Size - firstBytesOLEObject);
+       blob.ReadBuffer(Result[0], blob.Size - firstBytesOLEObject);
+      end;
+    finally
+      blob.Free;
     end;
   end;
 end;
 
-procedure TDataModule1.DataModuleCreate(Sender: TObject);  //Подключение к БД
+/// <summary>
+/// Подключение к БД
+/// </summary>
+procedure TDataModule1.DataModuleCreate(Sender: TObject);
 begin
   var PASSWORD_TO_DB := EmptyStr;
   try
@@ -168,7 +186,10 @@ begin
   end;
 end;
 
-function TDataModule1.ExamQuery():integer; //Запуск экзамена
+/// <summary>
+/// Запуск экзамена
+/// </summary>
+function TDataModule1.ExamQuery():integer;
 begin
     with ADOQuery1 do
   begin
@@ -183,20 +204,27 @@ begin
   end;
 end;
 
-function TDataModule1.LoadRightAnswer():string; //Функция,получения ответа на билет из БД
+/// <summary>
+/// Функция,получения ответа на билет из БД
+/// </summary>
+function TDataModule1.LoadRightAnswer(index_vopr:integer;number_bil:integer):string;
 begin
 with DataModule1.ADOQuery1 do
   begin
     Close;
     SQL.Clear;
-    SQL.Text:='SELECT * FROM bilets WHERE id=:i';
-    Parameters.ParamByName('i').Value:=number_bil;
+    SQL.Text:='SELECT true_ans FROM bils WHERE number_bil=:p1 and number_question=:p2';
+    Parameters.ParamByName('p1').Value:=number_bil;
+    Parameters.ParamByName('p2').Value:=index_vopr;
     Open;
-    Result:=Fields[index_vopr].AsString;
+    Result:=Fields[0].AsString;
   end;
 end;
 
-function TDataModule1.InsertNewUser(firstName:string;lastName:string;email:string;pass:string;bdayDate:TDateTime):boolean; //Внесение данных пользователя в БД (Регистрация)
+/// <summary>
+/// Внесение данных пользователя в БД (Регистрация)
+/// </summary>
+function TDataModule1.InsertNewUser(firstName:string;lastName:string;email:string;pass:string;bdayDate:TDateTime):boolean;
 begin
   if ((firstName<>'') and (lastName<>'') and (email<>'') and (pass<>''))  then // Проверка на введение всех данных
   begin
@@ -235,7 +263,10 @@ begin
   ShowMessage('Введены не все данные');
 end;
 
-function TDataModule1.InsertUserResults(user_id: Integer; spentTime: string; ticketNum: Integer; InvalidAns: string; TrueAns: string; rejim: string): Boolean; //Внесение результатов в БД
+/// <summary>
+/// Внесение результатов в БД
+/// </summary>
+function TDataModule1.InsertUserResults(user_id: Integer; ticketNum: Integer; stats:TStatistics): Boolean;
 begin
   with ADOQuery1 do
   begin
@@ -245,11 +276,11 @@ begin
     SQL.Add('INSERT INTO results (id_users,SpentTimeInSeconds,ticketNum,TotalInvalidAnswers,TotalTrueAnswers,rejim,Timespan)');
     SQL.Add('VALUES (:p1,:p2,:p3,:p4,:p5,:p6,Date())');
     Parameters.ParamByName('p1').Value := user_id;
-    Parameters.ParamByName('p2').Value :=spentTime;
+    Parameters.ParamByName('p2').Value :=IntToStr(stats.TotalTimeInSeconds);
     Parameters.ParamByName('p3').Value := ticketNum;
-    Parameters.ParamByName('p4').Value :=InvalidAns;
-    Parameters.ParamByName('p5').Value := TrueAns;
-    Parameters.ParamByName('p6').Value := rejim;
+    Parameters.ParamByName('p4').Value :=IntToStr(stats.TotalInvalidAnswers);
+    Parameters.ParamByName('p5').Value := IntToStr(stats.TotalTrueAnswers);
+    Parameters.ParamByName('p6').Value := stats.rejim;
     ExecSQL;
     Close;
     Result:=True;
@@ -262,6 +293,9 @@ begin
   end;
 end;
 
+/// <summary>
+/// Ввывод результов
+/// </summary>
 function TDataModule1.ShowResults(user_id:integer):TDataSet;
 begin
   with ADOQuery1 do
@@ -279,7 +313,10 @@ begin
   end;
 end;
 
-function TDataModule1.IsUserExist(email:string;pass:string):Integer; // Проверка, существует ли такой пользователь
+/// <summary>
+/// Проверка, существует ли такой пользователь
+/// </summary>
+function TDataModule1.GetUserId(email:string;pass:string):Integer;
 begin
   with DataModule1.ADOQuery1 do
   begin

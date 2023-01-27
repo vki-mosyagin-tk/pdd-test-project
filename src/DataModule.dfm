@@ -17,7 +17,7 @@ object DataModule1: TDataModule1
   end
   object ADOTable1: TADOTable
     Connection = ADOConnection1
-    Left = 160
-    Top = 56
+    Left = 192
+    Top = 80
   end
 end

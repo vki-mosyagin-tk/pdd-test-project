@@ -95,7 +95,6 @@ begin
   for i:=1 to 20 do
     Listbox1.Items.Add('Вопрос№'+IntToStr(i));
   i:=0;
-
   for i:=1 to 20 do
   begin
     im_valid[i]:=Timage.Create(FResults);

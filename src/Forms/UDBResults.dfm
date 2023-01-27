@@ -2,7 +2,7 @@ object FDBResults: TFDBResults
   Left = 0
   Top = 0
   Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090#1099' '#1087#1086#1083#1100#1079#1086#1074#1072#1090#1077#1083#1103
-  ClientHeight = 377
+  ClientHeight = 373
   ClientWidth = 690
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,6 +11,7 @@ object FDBResults: TFDBResults
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -93,7 +94,8 @@ object FDBResults: TFDBResults
       end>
   end
   object DataSource1: TDataSource
-    Left = 568
-    Top = 320
+    AutoEdit = False
+    Left = 624
+    Top = 32
   end
 end
